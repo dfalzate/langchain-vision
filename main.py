@@ -111,45 +111,65 @@ def assistant(state: AgentState):
 
 def main():
     # The graph
-	builder = StateGraph(AgentState)
+    builder = StateGraph(AgentState)
 
-	# Define nodes: these do the work
-	builder.add_node("assistant", assistant)
-	builder.add_node("tools", ToolNode(tools))
+    # Define nodes: these do the work
+    builder.add_node("assistant", assistant)
+    builder.add_node("tools", ToolNode(tools))
 
-	# Define edges: these determine how the control flow moves
-	builder.add_edge(START, "assistant")
-	builder.add_conditional_edges(
-		"assistant",
-		# If the latest message requires a tool, route to tools
-		# Otherwise, provide a direct response
-		tools_condition,
-	)
-	builder.add_edge("tools", "assistant")
-	react_graph = builder.compile()
+    # Define edges: these determine how the control flow moves
+    builder.add_edge(START, "assistant")
+    builder.add_conditional_edges(
+        "assistant",
+        # If the latest message requires a tool, route to tools
+        # Otherwise, provide a direct response
+        tools_condition,
+    )
+    builder.add_edge("tools", "assistant")
+    react_graph = builder.compile()
 
-	# Visualizar el grafo
-	png_data = react_graph.get_graph().draw_mermaid_png()
-	img = Image.open(BytesIO(png_data))
-	plt.figure(figsize=(12, 8))
-	plt.imshow(img)
-	plt.axis('off')
-	plt.tight_layout()
-	plt.show()
+    # Visualizar el grafo
+    png_data = react_graph.get_graph().draw_mermaid_png()
+    img = Image.open(BytesIO(png_data))
+    plt.figure(figsize=(12, 8))
+    plt.imshow(img)
+    plt.axis("off")
+    plt.tight_layout()
+    plt.show()
 
-	messages = [HumanMessage(content="Divide 6790 by 5")]
-	messages = react_graph.invoke({"messages": messages, "input_file": None})
+    messages = [HumanMessage(content="Divide 6790 by 5")]
+    messages = react_graph.invoke({"messages": messages, "input_file": None})
 
-	# Show the messages
-	for m in messages['messages']:
-		m.pretty_print()
+    # Show the messages
+    for m in messages["messages"]:
+        m.pretty_print()
 
-	messages = [HumanMessage(content="According to the note provided by Mr. Wayne in the provided images. What's the list of items I should buy for the dinner menu?")]
-	messages = react_graph.invoke({"messages": messages, "input_file": "training_and_meals.png"})
-	
-	# Show the messages
-	for m in messages['messages']:
-		m.pretty_print()
+    messages = [
+        HumanMessage(
+            content="According to the note provided by Mr. Wayne in the provided images. What's the list of items I should buy for the dinner menu?"
+        )
+    ]
+    messages = react_graph.invoke(
+        {"messages": messages, "input_file": "training_and_meals.png"}
+    )
+
+    # Show the messages
+    for m in messages["messages"]:
+        m.pretty_print()
+
+    messages = [
+        HumanMessage(
+            content="According to the note provided by Mr. Wayne in the provided images. What's the list of exercises I should do for strength training?"
+        )
+    ]
+    messages = react_graph.invoke(
+        {"messages": messages, "input_file": "training_and_meals.png"}
+    )
+
+    # Show the messages
+    for m in messages["messages"]:
+        m.pretty_print()
+
 
 if __name__ == "__main__":
     main()
